@@ -1,7 +1,7 @@
 mod board;
 mod game;
 mod snake;
-use crate::game::play;
+use crate::game::Game;
 /**
 PLAN:
 * Make snake food
@@ -9,5 +9,5 @@ PLAN:
 * Impliment death
 */
 fn main() {
-    play()
+    Game::new().run()
 }

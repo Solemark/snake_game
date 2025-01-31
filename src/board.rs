@@ -1,3 +1,7 @@
+use std::process::exit;
+
+use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+
 use crate::snake::Snake;
 
 pub struct Board {
@@ -38,12 +42,15 @@ impl Board {
         output
     }
 
-    pub fn parse(&mut self, res: String) {
-        match res.trim() {
-            "W" => self.validate_move((self.snake.head.0, self.snake.head.1 - 1)),
-            "S" => self.validate_move((self.snake.head.0, self.snake.head.1 + 1)),
-            "A" => self.validate_move((self.snake.head.0 - 1, self.snake.head.1)),
-            "D" => self.validate_move((self.snake.head.0 + 1, self.snake.head.1)),
+    pub fn parse(&mut self, res: KeyEvent) {
+        if res.code == KeyCode::Char('c') && res.modifiers == KeyModifiers::CONTROL {
+            exit(0);
+        }
+        match res.code.to_string().trim() {
+            "w" => self.validate_move((self.snake.head.0, self.snake.head.1 - 1)),
+            "s" => self.validate_move((self.snake.head.0, self.snake.head.1 + 1)),
+            "a" => self.validate_move((self.snake.head.0 - 1, self.snake.head.1)),
+            "d" => self.validate_move((self.snake.head.0 + 1, self.snake.head.1)),
             _ => println!("invalid move"),
         }
     }

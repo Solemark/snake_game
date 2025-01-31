@@ -1,20 +1,36 @@
 use crate::board::Board;
-use std::io::{stdin, stdout, Write};
+use crossterm::event::{read, Event};
+use ratatui::text::Text;
 
-pub fn play() {
-    let mut board = Board::new();
-    loop {
-        // TODO - TUI instead of reprint
-        println!("{}", board.display());
-        print!("enter move (wasd): ");
-        board.parse(read().to_uppercase());
-    }
+pub struct Game {
+    board: Board,
 }
+impl Game {
+    pub fn new() -> Game {
+        Game {
+            board: Board::new(),
+        }
+    }
+    pub fn run(&mut self) {
+        let mut terminal = ratatui::init();
+        loop {
+            // Clear before drawing to prevent artifacting
+            terminal.clear().expect("failed to render");
+            terminal
+                .draw(|f| {
+                    let text = Text::raw(self.board.display());
+                    f.render_widget(text, f.area());
+                })
+                .expect("failed to draw frame");
+            self.get_input();
+        }
+    }
 
-// TODO - Capture keyboard instead of this
-fn read() -> String {
-    let mut out = String::new();
-    stdout().flush().expect("failed to flush");
-    stdin().read_line(&mut out).expect("failed to read");
-    out
+    /// Waits for a keypress, is blocking the main thread
+    fn get_input(&mut self) {
+        match read().unwrap() {
+            Event::Key(e) => self.board.parse(e),
+            _ => (),
+        }
+    }
 }
