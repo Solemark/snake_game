@@ -116,9 +116,11 @@ impl Board {
 
     /// update the snake, board and fruit
     fn handle_move(&mut self, head: (usize, usize)) {
-        self.snake.0 = head.0;
-        self.snake.1 = head.1;
         self.body.push((self.snake.0, self.snake.1));
+        if self.board[head.1][head.0] != 'W' {
+            self.snake.0 = head.0;
+            self.snake.1 = head.1;
+        }
         if (self.snake.0, self.snake.1) == self.fruit {
             self.new_fruit = true;
             self.snake.2 += 1;
