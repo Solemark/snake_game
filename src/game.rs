@@ -38,7 +38,7 @@ impl Game {
         }
     }
 
-    /// Waits for a keypress, blocksw the main thread
+    /// Waits for a keypress, blocks the main thread
     fn get_input(&mut self) {
         match read().unwrap() {
             Event::Key(e) => self.board.parse(e),
