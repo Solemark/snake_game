@@ -13,6 +13,8 @@ pub struct Board {
     new_fruit: bool,
     /// location of current fruit
     fruit: (usize, usize),
+    pub win: bool,
+    pub loss: bool,
 }
 impl Board {
     pub fn new() -> Self {
@@ -29,10 +31,12 @@ impl Board {
                 ['W', '_', '_', '_', '_', '_', '_', '_', '_', 'W'],
                 ['W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W'],
             ],
-            snake: (3, 5, 0),
+            snake: (3, 5, 1),
             body: Vec::new(),
             new_fruit: true,
             fruit: (6, 5),
+            win: false,
+            loss: false,
         }
     }
 
@@ -45,24 +49,7 @@ impl Board {
             }
             output.push('\n');
         }
-        if self.body.len() > 10 {
-            self.trim_body();
-        }
         output
-    }
-
-    /// trim the body to prevent the Vec<(usize, usize)> growing infinately
-    fn trim_body(&mut self) {
-        self.body = self
-            .body
-            .clone()
-            .into_iter()
-            .rev()
-            .take(11)
-            .collect::<Vec<(usize, usize)>>()
-            .into_iter()
-            .rev()
-            .collect();
     }
 
     /// generate the current state of the board
@@ -116,41 +103,39 @@ impl Board {
 
     /// update the snake, board and fruit
     fn handle_move(&mut self, head: (usize, usize)) {
-        self.body.push((self.snake.0, self.snake.1));
-        if self.board[head.1][head.0] != 'W' {
-            self.snake.0 = head.0;
-            self.snake.1 = head.1;
+        if self.board[head.1][head.0] == 'W' {
+            self.loss = true;
+            return;
         }
-        if (self.snake.0, self.snake.1) == self.fruit {
+        if self.body.contains(&head) {
+            self.loss = true;
+            return;
+        }
+
+        self.snake.0 = head.0;
+        self.snake.1 = head.1;
+        self.body.push((self.snake.0, self.snake.1));
+        if (head.0, head.1) == self.fruit {
             self.new_fruit = true;
             self.snake.2 += 1;
         }
-    }
-
-    /// is the board in a loss state?
-    pub fn game_loss(&self) -> bool {
-        if self.board[self.snake.0][self.snake.1] == 'W' {
-            return true;
-        }
-        let mut l = self.snake.2;
-        for i in self.body.iter().rev() {
-            if l <= 0 {
-                break;
-            }
-            if *i == (self.snake.0, self.snake.1) {
-                return true;
-            }
-            l -= 1;
-        }
-        false
-    }
-
-    /// is the board in a win state?
-    pub fn game_win(&self) -> bool {
         if self.snake.2 >= 10 {
-            true
-        } else {
-            false
+            self.win = true;
         }
+        self.trim_body();
+    }
+
+    /// trim the body to prevent the Vec<(usize, usize)> growing infinately
+    fn trim_body(&mut self) {
+        self.body = self
+            .body
+            .clone()
+            .into_iter()
+            .rev()
+            .take(self.snake.2)
+            .collect::<Vec<(usize, usize)>>()
+            .into_iter()
+            .rev()
+            .collect();
     }
 }

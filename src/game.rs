@@ -16,11 +16,11 @@ impl Game {
     pub fn run(&mut self) {
         let mut terminal = ratatui::init();
         loop {
-            if self.board.game_loss() {
+            if self.board.loss {
                 terminal.clear().expect("failed to render on game loss");
                 println!("you lose");
                 exit(0);
-            } else if self.board.game_win() {
+            } else if self.board.win {
                 terminal.clear().expect("failed to render");
                 println!("you win");
                 exit(0);
